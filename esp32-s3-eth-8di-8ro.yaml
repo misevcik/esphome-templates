@@ -176,6 +176,3 @@ interval:
             ESP_LOGE("watchdog", "HA disconnected >30s, restarting...");
             App.safe_reboot();
           }
-
-# DYNAMICKÝ INCLUDE PODĽA TYPU PRIPOJENIA
-<<: !include esp32-s3-eth-8di-8ro-${connection_type}.yaml
