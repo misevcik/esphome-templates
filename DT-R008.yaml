@@ -1,0 +1,346 @@
+# dtr0xx_template.yaml (Uložené na GitHub)
+
+esphome:
+  name: ${devicename}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+external_components:
+  - source: github://kecajtop/dtr0xx_io@master
+    refresh: 60s
+    components: [ dtr0xx_io ]
+  - source: github://oxan/esphome-stream-server    
+
+logger:
+  baud_rate: 0 
+
+api:
+  batch_delay: 50ms
+  encryption:
+    key: ${key}
+  reboot_timeout: 172800s
+
+ota:
+  - platform: esphome
+    password: ${ota}
+
+ethernet:
+  type: JL1101
+  mdc_pin: 23
+  mdio_pin: 18
+  clk_mode: GPIO17_OUT
+  power_pin: 0
+  phy_addr: 1
+
+uart:
+  id: uart_bus
+  tx_pin: 1
+  rx_pin: 3
+  baud_rate: 9600
+  stop_bits: 1
+  data_bits: 8
+  parity: NONE
+
+modbus:
+  - uart_id: uart_bus
+    id: modbus_server
+    send_wait_time: 200ms
+    flow_control_pin: 33  
+
+modbus_controller:
+  - id: r4dcb08
+    address: 0x1
+    modbus_id: modbus_server
+    setup_priority: -10        
+    update_interval: 15s
+    command_throttle: 100ms
+    on_online:
+      then:
+        - binary_sensor.template.publish:
+            id: modbus_comm_error
+            state: OFF
+    on_offline:
+      then:
+        - binary_sensor.template.publish:
+            id: modbus_comm_error
+            state: ON      
+
+dtr0xx_io:
+  - id: dtr0xx_io_hub
+    dingtian_clk_pin: 14
+    dingtian_q7_pin: 16
+    dingtian_sdi_pin: 13
+    dingtian_pl_pin: 32
+    dingtian_rck_pin: 15
+
+# --- TEMPERATURE OFFSETS ---
+number:
+  - platform: template
+    name: "${friendly_name} ${temp1_name} Offset"
+    id: t1_off
+    min_value: -10
+    max_value: 10
+    step: 0.1
+    initial_value: 0
+    optimistic: true
+    unit_of_measurement: "°C"
+    mode: box
+    restore_value: true
+  - platform: template
+    name: "${friendly_name} ${temp2_name} Offset"
+    id: t2_off
+    min_value: -10
+    max_value: 10
+    step: 0.1
+    initial_value: 0
+    optimistic: true
+    unit_of_measurement: "°C"
+    mode: box
+    restore_value: true
+  - platform: template
+    name: "${friendly_name} ${temp3_name} Offset"
+    id: t3_off
+    min_value: -10
+    max_value: 10
+    step: 0.1
+    initial_value: 0
+    optimistic: true
+    unit_of_measurement: "°C"
+    mode: box
+    restore_value: true
+  - platform: template
+    name: "${friendly_name} ${temp4_name} Offset"
+    id: t4_off
+    min_value: -10
+    max_value: 10
+    step: 0.1
+    initial_value: 0
+    optimistic: true
+    unit_of_measurement: "°C"
+    mode: box
+    restore_value: true
+  - platform: template
+    name: "${friendly_name} ${temp5_name} Offset"
+    id: t5_off
+    min_value: -10
+    max_value: 10
+    step: 0.1
+    initial_value: 0
+    optimistic: true
+    unit_of_measurement: "°C"
+    mode: box
+    restore_value: true
+  - platform: template
+    name: "${friendly_name} ${temp6_name} Offset"
+    id: t6_off
+    min_value: -10
+    max_value: 10
+    step: 0.1
+    initial_value: 0
+    optimistic: true
+    unit_of_measurement: "°C"
+    mode: box
+    restore_value: true
+  - platform: template
+    name: "${friendly_name} ${temp7_name} Offset"
+    id: t7_off
+    min_value: -10
+    max_value: 10
+    step: 0.1
+    initial_value: 0
+    optimistic: true
+    unit_of_measurement: "°C"
+    mode: box
+    restore_value: true
+  - platform: template
+    name: "${friendly_name} ${temp8_name} Offset"
+    id: t8_off
+    min_value: -10
+    max_value: 10
+    step: 0.1
+    initial_value: 0
+    optimistic: true
+    unit_of_measurement: "°C"
+    mode: box
+    restore_value: true
+
+# --- DIAGNOSTICS ---
+binary_sensor:
+  - platform: status
+    name: "${friendly_name} Status"
+  - platform: template
+    id: modbus_comm_error
+    name: "${friendly_name} Modbus Error"
+    device_class: problem
+    lambda: "return false;"
+
+# --- MODBUS SENSORS ---
+sensor:   
+  - platform: uptime
+    id: uptime_sensor
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08
+    name: "${friendly_name} ${temp1_name}"
+    address: 0x0
+    register_type: holding
+    value_type: S_WORD 
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - lambda: "if (std::isnan(x) || x <= -320.0 || x >= 150.0) return {}; return x + id(t1_off).state;"
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08
+    name: "${friendly_name} ${temp2_name}"
+    address: 0x1
+    register_type: holding
+    value_type: S_WORD 
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - lambda: "if (std::isnan(x) || x <= -320.0 || x >= 150.0) return {}; return x + id(t2_off).state;"
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08
+    name: "${friendly_name} ${temp3_name}"
+    address: 0x2
+    register_type: holding
+    value_type: S_WORD 
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - lambda: "if (std::isnan(x) || x <= -320.0 || x >= 150.0) return {}; return x + id(t3_off).state;"
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08
+    name: "${friendly_name} ${temp4_name}"
+    address: 0x3
+    register_type: holding
+    value_type: S_WORD 
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - lambda: "if (std::isnan(x) || x <= -320.0 || x >= 150.0) return {}; return x + id(t4_off).state;"
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08
+    name: "${friendly_name} ${temp5_name}"
+    address: 0x4
+    register_type: holding
+    value_type: S_WORD 
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - lambda: "if (std::isnan(x) || x <= -320.0 || x >= 150.0) return {}; return x + id(t5_off).state;"
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08
+    name: "${friendly_name} ${temp6_name}"
+    address: 0x5
+    register_type: holding
+    value_type: S_WORD 
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - lambda: "if (std::isnan(x) || x <= -320.0 || x >= 150.0) return {}; return x + id(t6_off).state;"
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08
+    name: "${friendly_name} ${temp7_name}"
+    address: 0x6
+    register_type: holding
+    value_type: S_WORD 
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - lambda: "if (std::isnan(x) || x <= -320.0 || x >= 150.0) return {}; return x + id(t7_off).state;"
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08
+    name: "${friendly_name} ${temp8_name}"
+    address: 0x7
+    register_type: holding
+    value_type: S_WORD 
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+      - lambda: "if (std::isnan(x) || x <= -320.0 || x >= 150.0) return {}; return x + id(t8_off).state;"
+
+# --- TEXT SENSORS ---
+text_sensor:
+  - platform: ethernet_info
+    ip_address:
+      name: "${friendly_name} IP Address"
+    dns_address:
+      name: "${friendly_name} DNS Address"
+    mac_address:
+      name: "${friendly_name} MAC Address"
+  - platform: template
+    name: "${friendly_name} Device Uptime"
+    lambda: |-
+      int seconds = id(uptime_sensor).state;
+      int days = seconds / 86400;
+      int hours = (seconds % 86400) / 3600;
+      int minutes = (seconds % 3600) / 60;
+      char buffer[30];
+      if (days > 0) sprintf(buffer, "%dd %02dh %02dm", days, hours, minutes);
+      else sprintf(buffer, "%02dh %02dm", hours, minutes);
+      return std::string(buffer);
+    icon: "mdi:clock"
+    update_interval: 60s   
+
+# --- RELAYS ---
+switch:
+  - platform: gpio
+    name: "${friendly_name} Relay 1"
+    id: relay_1
+    restore_mode: ALWAYS_OFF
+    pin: { dtr0xx_io: dtr0xx_io_hub, number: 7 }
+  - platform: gpio
+    name: "${friendly_name} Relay 2"
+    id: relay_2
+    restore_mode: ALWAYS_OFF
+    pin: { dtr0xx_io: dtr0xx_io_hub, number: 6 }
+  - platform: gpio
+    name: "${friendly_name} Relay 3"
+    id: relay_3
+    restore_mode: ALWAYS_OFF
+    pin: { dtr0xx_io: dtr0xx_io_hub, number: 5 }
+  - platform: gpio
+    name: "${friendly_name} Relay 4"
+    id: relay_4
+    restore_mode: ALWAYS_OFF
+    pin: { dtr0xx_io: dtr0xx_io_hub, number: 4 }
+  - platform: gpio
+    name: "${friendly_name} Relay 5"
+    id: relay_5
+    restore_mode: ALWAYS_OFF
+    pin: { dtr0xx_io: dtr0xx_io_hub, number: 3 }
+  - platform: gpio
+    name: "${friendly_name} Relay 6"
+    id: relay_6
+    restore_mode: ALWAYS_OFF
+    pin: { dtr0xx_io: dtr0xx_io_hub, number: 2 }
+  - platform: gpio
+    name: "${friendly_name} Relay 7"
+    id: relay_7
+    restore_mode: ALWAYS_OFF
+    pin: { dtr0xx_io: dtr0xx_io_hub, number: 1 }
+  - platform: gpio
+    name: "${friendly_name} Relay 8"
+    id: relay_8
+    restore_mode: ALWAYS_OFF
+    pin: { dtr0xx_io: dtr0xx_io_hub, number: 0 }
