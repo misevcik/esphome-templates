@@ -1,0 +1,12 @@
+wifi:
+  ap:
+    ssid: "${dev_name}_Config"
+    password: ""
+
+captive_portal:
+
+web_server:
+  port: 80
+
+ota:
+  - platform: esphome
