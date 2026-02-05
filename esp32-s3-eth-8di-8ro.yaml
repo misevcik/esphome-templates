@@ -17,7 +17,6 @@ ota:
   - platform: esphome
     password: ${ota_password}
 
-#<<: !include esp32-s3-eth-8di-8ro-${connection_type}.yaml
 wifi:
   ap:
     ssid: "${dev_name}_Config"
