@@ -79,6 +79,7 @@ switch:
 sensor:
   - platform: uptime
     id: uptime_sensor
+
   - platform: modbus_controller
     modbus_controller_id: r4dcb08_hub
     name: "${friendly_name} ${temp1_name}"
@@ -89,7 +90,72 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-  # ... tu si doplň ostatných 6 modbus senzorov (temp2 až temp7) podľa tvojho pôvodného kódu ...
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08_hub
+    name: "${friendly_name} ${temp2_name}"
+    register_type: holding
+    address: 0x1
+    unit_of_measurement: "°C"
+    value_type: S_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08_hub
+    name: "${friendly_name} ${temp3_name}"
+    register_type: holding
+    address: 0x2
+    unit_of_measurement: "°C"
+    value_type: S_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08_hub
+    name: "${friendly_name} ${temp4_name}"
+    register_type: holding
+    address: 0x3
+    unit_of_measurement: "°C"
+    value_type: S_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08_hub
+    name: "${friendly_name} ${temp5_name}"
+    register_type: holding
+    address: 0x5
+    unit_of_measurement: "°C"
+    value_type: S_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08_hub
+    name: "${friendly_name} ${temp6_name}"
+    register_type: holding
+    address: 0x6
+    unit_of_measurement: "°C"
+    value_type: S_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
+
+  - platform: modbus_controller
+    modbus_controller_id: r4dcb08_hub
+    name: "${friendly_name} ${temp7_name}"
+    register_type: holding
+    address: 0x7
+    unit_of_measurement: "°C"
+    value_type: S_WORD
+    accuracy_decimals: 1
+    filters:
+      - multiply: 0.1
 
 globals:
   - id: last_ha_ok
