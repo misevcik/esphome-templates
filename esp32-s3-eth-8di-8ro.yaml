@@ -156,23 +156,3 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-
-globals:
-  - id: last_ha_ok
-    type: unsigned long
-    initial_value: '0'
-
-interval:
-  - interval: 1s
-    then:
-      - if:
-          condition: { api.connected: }
-          then:
-            - lambda: 'id(last_ha_ok) = millis();'
-  - interval: 5s
-    then:
-      - lambda: |-
-          if (millis() - id(last_ha_ok) > 30000) {
-            ESP_LOGE("watchdog", "HA disconnected >30s, restarting...");
-            App.safe_reboot();
-          }
