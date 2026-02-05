@@ -17,7 +17,19 @@ ota:
   - platform: esphome
     password: ${ota_password}
 
-<<: !include esp32-s3-eth-8di-8ro-${connection_type}.yaml
+#<<: !include esp32-s3-eth-8di-8ro-${connection_type}.yaml
+wifi:
+  ap:
+    ssid: "${dev_name}_Config"
+    password: ""
+
+captive_portal:
+
+web_server:
+  port: 80
+
+ota:
+  - platform: esphome
 
 i2c:
   sda: GPIO42
